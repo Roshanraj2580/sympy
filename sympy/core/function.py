@@ -2384,8 +2384,8 @@ class Subs(Expr):
             # is already mapped to 0 so __0 and __1 are used for the new
             # symbols
             if any(r in expr.free_symbols and
-                   r in variables and
-                   Symbol(pre + mystr(point[variables.index(r)])) != r
+                   (r not in variables or
+                    Symbol(pre + mystr(point[variables.index(r)])) != r)
                    for _, r in reps):
                 pre += "_"
                 continue
@@ -2510,7 +2510,7 @@ class Subs(Expr):
         return super().__hash__()
 
     def _hashable_content(self):
-        return (self._expr.xreplace(self.canonical_variables),
+        return (len(self.variables), self._expr.xreplace(self.canonical_variables),
             ) + tuple(ordered([(v, p) for v, p in
             zip(self.variables, self.point) if not self.expr.has(v)]))
 

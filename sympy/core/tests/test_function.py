@@ -1620,3 +1620,15 @@ def test_eval_classmethod_check():
 def test_issue_27163():
     # https://github.com/sympy/sympy/issues/27163
     raises(TypeError, lambda: Derivative(f, t))
+
+def test_issue_29714():
+    expr = f(x + y, x*y)
+    dexpr = expr.diff(y).diff(x)
+    assert dexpr.free_symbols == {x, y}
+    assert not any(s.name.startswith('_') for s in dexpr.free_symbols)
+
+    xd = Dummy('xd')
+    xi_2 = Dummy('xi_2')
+    inner = Subs(Derivative(f(xd, xi_2), xd, xi_2), xi_2, x*y)
+    S = Subs(y * inner, xd, x + y)
+    assert S.doit().free_symbols == {x, y}
